@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-   
-    protected $table = 'employees';
-    protected $primaryKey = 'id';
-    protected $fillable = ['name', 'address', 'mobile','photo'];
+    use HasFactory;
+    protected $fillable = [
+        'name', 'email', 'number', 'department', 'image',
+    ];
 }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Employee;
+
 use Hash;
 use Session;
 
@@ -12,10 +15,16 @@ use Session;
 class CustomAuthController extends Controller
 {
     public function login(){
+        if(Session()->has('loginId')){
+            return redirect ('employees');
+        }
         return view("auth.Login");
     }
 
     public function registration(){
+        if(Session()->has('loginId')){
+            return redirect ('employees');
+        }
         return view("auth.registration");
     }
 
@@ -40,14 +49,14 @@ class CustomAuthController extends Controller
     }
     public function loginUser(Request $request){
         $request->validate([
-            'email'=>'required|email',
+            'email'=>'required|email|exists:users',
             'password'=>'required|min:8|max:10'
         ]);
         $user = User::where('email', '=', $request->email)->first();
         if($user){
             if(Hash::check($request->password, $user->password)){
                 $request->session()->put('loginId', $user->id);
-                return redirect('dashboard');
+                return redirect('employees');
 
             }
             else{
@@ -58,19 +67,14 @@ class CustomAuthController extends Controller
             return back()->with('fail', 'This Email is not registered');
         }
     }
-    public function dashboard(){
-        $data = array();
-        if(Session::has('loginId')){
-            $data=User::where('id', '=', Session::get('loginId'))->first();
-        }
-        return view('dashboard', compact('data'));
-    }
+
     public function logout(){
         if(Session::has('loginId')){
             Session::pull('loginId');
             return redirect('login');
             }
     }
+    
     
 
     
